@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+#hero {
+  background-image: url("/fixbs-bg.png");
+  background-size: cover;
+}

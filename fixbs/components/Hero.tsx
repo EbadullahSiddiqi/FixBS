@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function Hero() {
@@ -11,9 +12,12 @@ function Hero() {
         <p className="mt-4 text-2xl font-semibold italic">
           Fix it using <span className="underline"> FixBS </span>
         </p>
-        <button className="mt-8 px-18 py-4 bg-[#5CC8FF] cursor-pointer text-white hover:text-[#FFEC9F] rounded-lg text-2xl font-semibold hover:bg-[#4AB0E6] transition duration-300">
+        <Link
+          href="/dashboard"
+          className="mt-8 px-18 py-4 bg-[#5CC8FF] cursor-pointer text-white hover:text-[#FFEC9F] rounded-lg text-2xl font-semibold hover:bg-[#4AB0E6] transition duration-300 inline-block"
+        >
           Get Started
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   const prompt = `
           You are a code review AI. Analyze the following code and
-          list all syntax or logical errors clearly:
+          list all syntax or logical errors, security errors, any other error clearly:
           
           Return only the errors in the form of a JSON array.
           Do not include any other text or explanations.

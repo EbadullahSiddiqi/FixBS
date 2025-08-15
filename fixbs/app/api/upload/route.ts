@@ -23,13 +23,32 @@ export async function POST(request: NextRequest) {
             - "minor" for stylistic issues or best practices
             - "info" for informational messages or suggestions
 
+            Return each error with the following structure:
+            {
+              line: [line number],
+              message: [error message],
+              severity: [severity level],
+              type: [error type, e.g., "syntax", "logic", "security", "style"],
+            }
+
             Here's the file's content:   ${fileContent}
         `;
 
   const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  var text = result.response.text();
 
-//   console.log(text);
+  text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+
+  // Try to find JSON array in the text
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (jsonMatch) {
+    text = jsonMatch[0];
+  }
+
+  // Trim whitespace
+  text = text.trim();
+
+  console.log(text);
 
   return NextResponse.json({
     result: text,

@@ -39,27 +39,9 @@ export default function FileUploadDashboard() {
       try {
         parsedResult = JSON.parse(data.result);
       } catch (e) {
-        // If parsing fails, create a mock result for demonstration
-        parsedResult = [
-          {
-            line: 15,
-            message: "Missing semicolon at end of statement",
-            severity: "minor",
-            type: "syntax",
-          },
-          {
-            line: 23,
-            message: "Unused variable 'tempVar' declared but never used",
-            severity: "major",
-            type: "logical",
-          },
-          {
-            line: 8,
-            message: "Function 'calculateTotal' may return undefined",
-            severity: "critical",
-            type: "logical",
-          },
-        ];
+        // If parsing fails, show error message
+        alert("Error parsing analysis results. Please try again.");
+        return;
       }
 
       setAnalysisResult(parsedResult);
@@ -93,18 +75,48 @@ export default function FileUploadDashboard() {
     }
   };
 
-  const getSeverityIcon = (severity) => {
-    switch (severity) {
-      case "critical":
+  const getSeverityIcon = (type) => {
+    switch (type?.toLowerCase()) {
+      case "security":
         return <AlertCircle className="w-4 h-4 text-red-400" />;
-      case "major":
-        return <AlertCircle className="w-4 h-4 text-orange-400" />;
-      case "minor":
-        return <Info className="w-4 h-4 text-yellow-400" />;
-      case "info":
-        return <CheckCircle className="w-4 h-4 text-[#5CC8FF]" />;
+      case "logic":
+        return <Zap className="w-4 h-4 text-orange-400" />;
+      case "style":
+        return <FileText className="w-4 h-4 text-blue-400" />;
+      case "syntax":
+        return <AlertCircle className="w-4 h-4 text-yellow-400" />;
       default:
         return <Info className="w-4 h-4 text-[#A3A3A3]" />;
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type?.toLowerCase()) {
+      case "security":
+        return <AlertCircle className="w-4 h-4 text-red-400" />;
+      case "logic":
+        return <Zap className="w-4 h-4 text-orange-400" />;
+      case "style":
+        return <FileText className="w-4 h-4 text-blue-400" />;
+      case "syntax":
+        return <AlertCircle className="w-4 h-4 text-yellow-400" />;
+      default:
+        return <Info className="w-4 h-4 text-[#A3A3A3]" />;
+    }
+  };
+
+  const getTypeColor = (type) => {
+    switch (type?.toLowerCase()) {
+      case "security":
+        return "text-red-400 bg-red-400/10 border-red-400/30";
+      case "logic":
+        return "text-orange-400 bg-orange-400/10 border-orange-400/30";
+      case "style":
+        return "text-blue-400 bg-blue-400/10 border-blue-400/30";
+      case "syntax":
+        return "text-yellow-400 bg-yellow-400/10 border-yellow-400/30";
+      default:
+        return "text-[#A3A3A3] bg-gray-400/10 border-gray-400/30";
     }
   };
 
@@ -118,6 +130,12 @@ export default function FileUploadDashboard() {
       major: analysisResult.filter((item) => item.severity === "major").length,
       minor: analysisResult.filter((item) => item.severity === "minor").length,
       info: analysisResult.filter((item) => item.severity === "info").length,
+      // Type-based stats
+      security: analysisResult.filter((item) => item.type === "security")
+        .length,
+      logic: analysisResult.filter((item) => item.type === "logic").length,
+      style: analysisResult.filter((item) => item.type === "style").length,
+      syntax: analysisResult.filter((item) => item.type === "syntax").length,
     };
 
     return stats;
@@ -212,45 +230,108 @@ export default function FileUploadDashboard() {
 
             {/* Stats Cards */}
             {stats && (
-              <div className="mt-6 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#262424] rounded-xl p-4 border border-red-400/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#A3A3A3] text-sm">Critical</span>
-                      <AlertCircle className="w-4 h-4 text-red-400" />
+              <div className="mt-6 space-y-4">
+                <h3 className="text-sm font-medium text-[#FFEC9F] mb-3">
+                  Issue Breakdown
+                </h3>
+
+                {/* Severity Stats */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
+                    By Severity
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-[#1C1B1B] rounded-lg p-3 border border-red-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#A3A3A3] text-xs">Critical</span>
+                        <AlertCircle className="w-3 h-3 text-red-400" />
+                      </div>
+                      <p className="text-lg font-bold text-red-400 mt-1">
+                        {stats.critical}
+                      </p>
                     </div>
-                    <p className="text-xl font-bold text-red-400 mt-1">
-                      {stats.critical}
-                    </p>
-                  </div>
-                  <div className="bg-[#262424] rounded-xl p-4 border border-orange-400/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#A3A3A3] text-sm">Major</span>
-                      <AlertCircle className="w-4 h-4 text-orange-400" />
+                    <div className="bg-[#1C1B1B] rounded-lg p-3 border border-orange-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#A3A3A3] text-xs">Major</span>
+                        <AlertCircle className="w-3 h-3 text-orange-400" />
+                      </div>
+                      <p className="text-lg font-bold text-orange-400 mt-1">
+                        {stats.major}
+                      </p>
                     </div>
-                    <p className="text-xl font-bold text-orange-400 mt-1">
-                      {stats.major}
-                    </p>
+                    <div className="bg-[#1C1B1B] rounded-lg p-3 border border-yellow-400/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#A3A3A3] text-xs">Minor</span>
+                        <Info className="w-3 h-3 text-yellow-400" />
+                      </div>
+                      <p className="text-lg font-bold text-yellow-400 mt-1">
+                        {stats.minor}
+                      </p>
+                    </div>
+                    <div className="bg-[#1C1B1B] rounded-lg p-3 border border-[#5CC8FF]/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#A3A3A3] text-xs">Info</span>
+                        <CheckCircle className="w-3 h-3 text-[#5CC8FF]" />
+                      </div>
+                      <p className="text-lg font-bold text-[#5CC8FF] mt-1">
+                        {stats.info}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#262424] rounded-xl p-4 border border-yellow-400/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#A3A3A3] text-sm">Minor</span>
-                      <Info className="w-4 h-4 text-yellow-400" />
-                    </div>
-                    <p className="text-xl font-bold text-yellow-400 mt-1">
-                      {stats.minor}
-                    </p>
-                  </div>
-                  <div className="bg-[#262424] rounded-xl p-4 border border-[#5CC8FF]/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#A3A3A3] text-sm">Info</span>
-                      <CheckCircle className="w-4 h-4 text-[#5CC8FF]" />
-                    </div>
-                    <p className="text-xl font-bold text-[#5CC8FF] mt-1">
-                      {stats.info}
-                    </p>
+
+                {/* Type Stats */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
+                    By Category
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {stats.security > 0 && (
+                      <div className="bg-[#1C1B1B] rounded-lg p-3 border border-red-400/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#A3A3A3] text-xs">
+                            Security
+                          </span>
+                          <AlertCircle className="w-3 h-3 text-red-400" />
+                        </div>
+                        <p className="text-lg font-bold text-red-400 mt-1">
+                          {stats.security}
+                        </p>
+                      </div>
+                    )}
+                    {stats.logic > 0 && (
+                      <div className="bg-[#1C1B1B] rounded-lg p-3 border border-orange-400/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#A3A3A3] text-xs">Logic</span>
+                          <Zap className="w-3 h-3 text-orange-400" />
+                        </div>
+                        <p className="text-lg font-bold text-orange-400 mt-1">
+                          {stats.logic}
+                        </p>
+                      </div>
+                    )}
+                    {stats.style > 0 && (
+                      <div className="bg-[#1C1B1B] rounded-lg p-3 border border-blue-400/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#A3A3A3] text-xs">Style</span>
+                          <FileText className="w-3 h-3 text-blue-400" />
+                        </div>
+                        <p className="text-lg font-bold text-blue-400 mt-1">
+                          {stats.style}
+                        </p>
+                      </div>
+                    )}
+                    {stats.syntax > 0 && (
+                      <div className="bg-[#1C1B1B] rounded-lg p-3 border border-yellow-400/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#A3A3A3] text-xs">Syntax</span>
+                          <AlertCircle className="w-3 h-3 text-yellow-400" />
+                        </div>
+                        <p className="text-lg font-bold text-yellow-400 mt-1">
+                          {stats.syntax}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -12,12 +12,19 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import React from "react";
+import Editor from "react-simple-code-editor";
+import { highlight, languages } from "prismjs/components/prism-core";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-javascript";
+import "prismjs/themes/prism.css";
 
 export default function FileUploadDashboard() {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [fileName, setFileName] = useState("");
+  const [fileContent, setfileContent] = useState("");
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a file first");
@@ -39,9 +46,13 @@ export default function FileUploadDashboard() {
       let parsedResult;
       try {
         parsedResult = JSON.parse(data.result);
+        const text = await file.text();
+        setfileContent(text);
       } catch (e) {
         // If parsing fails, show error message
         alert("Error parsing analysis results. Please try again.");
+        const text = await file.text();
+        setfileContent(text);
         return;
       }
 
@@ -416,6 +427,18 @@ export default function FileUploadDashboard() {
                 </div>
               </div>
             )}
+            <div className="bg-[#262424] mt-10 rounded-2xl p-6 shadow-xl border border-[#6C63FF]/30">
+              <Editor
+                value={fileContent}
+                onValueChange={(code) => setCode(code)}
+                highlight={(code) => highlight(code, languages.js)}
+                padding={10}
+                style={{
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 12,
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

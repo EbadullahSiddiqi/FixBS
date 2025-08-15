@@ -11,6 +11,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function FileUploadDashboard() {
   const [file, setFile] = useState(null);
@@ -154,7 +155,9 @@ export default function FileUploadDashboard() {
                 <Zap className="w-6 h-6 text-black" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">FixBS</h1>
+                <Link href="/" className="text-2xl font-bold text-white">
+                  FixBS
+                </Link>
                 <p className="text-[#A3A3A3] text-sm">
                   Code Analysis Dashboard
                 </p>

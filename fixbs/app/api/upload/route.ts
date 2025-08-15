@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   // Trim whitespace
   text = text.trim();
 
-  console.log(text);
+  // console.log(text);
 
   return NextResponse.json({
     result: text,

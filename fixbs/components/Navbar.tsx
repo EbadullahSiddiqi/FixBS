@@ -3,13 +3,13 @@ import React from "react";
 
 function Navbar() {
   return (
-    <nav className="mt-12 bg-transparent border-2 border-gray-50 rounded-xl w-2/3 py-4 px-4 backdrop-blur-lg">
+    <nav className="mt-12 bg-transparent border-2 border-gray-50 rounded-xl w-4/5 lg:w-2/3 py-4 px-4 backdrop-blur-lg">
       <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="text-white text-2xl font-bold">
+        <Link href="/" className="text-white text-xl lg:text-2xl font-bold">
           FixBS
         </Link>
         <div className="flex gap-3 space-x-4 text-white text-lg font-semibold">
-          <Link
+          {/* <Link
             className="hover:text-[#FFEC9F] transition-all duration-200"
             href="/"
           >
@@ -26,7 +26,10 @@ function Navbar() {
             href="/contact"
           >
             Contact
-          </Link>
+          </Link> */}
+          <h1 className="hover:text-[#FFEC9F] transition-all duration-200 text-lg lg:text-xl">
+            <i> Coming Soon </i>
+          </h1>
         </div>
       </div>
     </nav>

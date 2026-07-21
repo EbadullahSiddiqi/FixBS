@@ -1166,9 +1166,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/oxide-linux-x64-gnu@npm:4.3.3":
+"@tailwindcss/oxide-linux-x64-gnu@npm:4.3.3, @tailwindcss/oxide-linux-x64-gnu@npm:^4.3.3":
   version: 4.3.3
   resolution: "@tailwindcss/oxide-linux-x64-gnu@npm:4.3.3"
+  checksum: 10c0/be284baba613d5900c398051fe976cea6f6691c88a02283ca97e1ac824848b8513184fa2cc1a54f408fc74caf2f9755425d11662d379f2b8e42bf973fa0944a9
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
@@ -3087,6 +3088,7 @@ __metadata:
     "@google/generative-ai": "npm:^0.24.1"
     "@neondatabase/serverless": "npm:^1.1.0"
     "@radix-ui/react-navigation-menu": "npm:^1.2.14"
+    "@tailwindcss/oxide-linux-x64-gnu": "npm:^4.3.3"
     "@tailwindcss/oxide-win32-x64-msvc": "npm:^4.3.3"
     "@tailwindcss/postcss": "npm:^4"
     "@types/busboy": "npm:^1.5.4"

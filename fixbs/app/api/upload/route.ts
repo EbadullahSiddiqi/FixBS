@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         `;
 
   const result = await model.generateContent(prompt);
-  var text = result.response.text();
+  let text = result.response.text();
 
   text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
 

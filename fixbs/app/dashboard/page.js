@@ -50,7 +50,7 @@ export default function FileUploadDashboard() {
         setfileContent(text);
       } catch (e) {
         // If parsing fails, show error message
-        alert("Error parsing analysis results. Please try again.");
+        alert("Error parsing analysis results. Please try again.", e);
         const text = await file.text();
         setfileContent(text);
         return;
@@ -102,20 +102,20 @@ export default function FileUploadDashboard() {
     }
   };
 
-  const getTypeIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case "security":
-        return <AlertCircle className="w-4 h-4 text-red-400" />;
-      case "logic":
-        return <Zap className="w-4 h-4 text-orange-400" />;
-      case "style":
-        return <FileText className="w-4 h-4 text-blue-400" />;
-      case "syntax":
-        return <AlertCircle className="w-4 h-4 text-yellow-400" />;
-      default:
-        return <Info className="w-4 h-4 text-[#A3A3A3]" />;
-    }
-  };
+  // const getTypeIcon = (type) => {
+  //   switch (type?.toLowerCase()) {
+  //     case "security":
+  //       return <AlertCircle className="w-4 h-4 text-red-400" />;
+  //     case "logic":
+  //       return <Zap className="w-4 h-4 text-orange-400" />;
+  //     case "style":
+  //       return <FileText className="w-4 h-4 text-blue-400" />;
+  //     case "syntax":
+  //       return <AlertCircle className="w-4 h-4 text-yellow-400" />;
+  //     default:
+  //       return <Info className="w-4 h-4 text-[#A3A3A3]" />;
+  //   }
+  // };
 
   const getTypeColor = (type) => {
     switch (type?.toLowerCase()) {
@@ -363,7 +363,7 @@ export default function FileUploadDashboard() {
                   </h3>
                   <p className="text-[#A3A3A3]">
                     Upload a code file to get started with AI-powered code
-                    analysis. We'll identify syntax errors, logical issues, and
+                    analysis. We&apos;ll identify syntax errors, logical issues, and
                     provide improvement suggestions.
                   </p>
                 </div>

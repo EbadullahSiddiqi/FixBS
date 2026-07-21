@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import React, { FormEvent, useState } from "react";
 
-function page() {
+function Page(): React.JSX.Element {
   const [wishlistToggle, setWishlistToggle] = useState(false);
   const [wishlistMsg, setWishlistMsg] = useState("");
 
@@ -47,10 +47,10 @@ function page() {
       style={{ backgroundImage: "url('/fixbs-bg.png')" }}
     >
       <div
-    //   className="relative h-screen bg-center bg-no-repeat bg-cover"
-    //   style={{
-    //     backgroundImage: "url('/fixbs-bg.png')",
-    //   }}
+      //   className="relative h-screen bg-center bg-no-repeat bg-cover"
+      //   style={{
+      //     backgroundImage: "url('/fixbs-bg.png')",
+      //   }}
       >
         <div className="flex justify-center items-center">
           <Navbar />
@@ -66,7 +66,7 @@ function page() {
             <span className="underline"></span>
           </h1>
           <p className="mt-4 text-lg lg:text-2xl font-semibold italic">
-            You'll receive an email invitation to be the
+            You&apos;ll receive an email invitation to be the
             <span className="underline"> First User! </span>
           </p>
         </div>
@@ -132,4 +132,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

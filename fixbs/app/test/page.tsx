@@ -7,7 +7,7 @@ import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism.css"; //Example style, you can use another
 
-export default function page() {
+export default function Page() : React.JSX.Element {
   const [code, setCode] = React.useState(
     `
     const formData = await request.formData();

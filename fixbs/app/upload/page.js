@@ -12,7 +12,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 import Editor from "react-simple-code-editor";
 import { highlight, languages } from "prismjs/components/prism-core";
 import "prismjs/components/prism-clike";
@@ -24,46 +23,54 @@ export default function FileUploadDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [fileContent, setfileContent] = useState("");
+  const [fileContent, setFileContent] = useState("");
 
-  const handleUpload = async () => {
-    if (!file) return alert("Please select a file first");
+ const handleUpload = async () => {
+  if (!file) return alert("Please select a file first");
 
-    setIsUploading(true);
+  setIsUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-      const data = await res.json();
-
-      // Parse the JSON result from the API
-      let parsedResult;
-      try {
-        parsedResult = JSON.parse(data.result);
-        const text = await file.text();
-        setfileContent(text);
-      } catch (e) {
-        // If parsing fails, show error message
-        alert("Error parsing analysis results. Please try again.", e);
-        const text = await file.text();
-        setfileContent(text);
-        return;
-      }
-
-      setAnalysisResult(parsedResult);
-    } catch (error) {
-      console.error(error);
-      alert("Upload failed. Please try again.");
-    } finally {
-      setIsUploading(false);
+    // Check if the response is successful
+    if (!res.ok) {
+      throw new Error(`Upload failed with status: ${res.status}`);
     }
-  };
+
+    // Parse the JSON response from the API
+    const data = await res.json();
+    
+    // The API returns { result: "..." } where result is a JSON string
+    let parsedResult;
+    try {
+      // Parse the result string from the API response
+      parsedResult = JSON.parse(data.result);
+      const text = await file.text();
+      setFileContent(text); // Make sure this matches your state setter name
+    } catch (e) {
+      // If parsing fails, show error message
+      console.error("Error parsing analysis results:", e);
+      alert("Error parsing analysis results. Please try again.");
+      const text = await file.text();
+      setFileContent(text);
+      return;
+    }
+
+    setAnalysisResult(parsedResult);
+  } catch (error) {
+    console.error(error);
+    alert("Upload failed. Please try again.");
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files?.[0] || null;

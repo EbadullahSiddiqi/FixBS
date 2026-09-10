@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Initialize with the new API
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!,
+});
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("file") as File;
 
   const fileContent = await file.text();
-
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
   const prompt = `
           You are a code review AI. Analyze the following code and
@@ -34,8 +35,13 @@ export async function POST(request: NextRequest) {
             Here's the file's content:   ${fileContent}
         `;
 
-  const result = await model.generateContent(prompt);
-  let text = result.response.text();
+  // Use the new generateContent method
+  const response = await ai.models.generateContent({
+    model: "gemini-3.6-flash",
+    contents: prompt,
+  });
+
+  let text = response.text || "";
 
   text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
 

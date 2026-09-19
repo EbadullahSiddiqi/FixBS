@@ -10,16 +10,17 @@ import {
   Code2,
   Info,
   LockKeyhole,
-  ShieldAlert,
   Sparkles,
   TriangleAlert,
+  ExternalLink,
+  ArrowUpRight,
 } from "lucide-react";
 
-type FindingSeverity = "critical" | "major" | "minor" | "info";
+export type FindingSeverity = "critical" | "major" | "minor" | "info";
 
-type FindingCategory = "architecture" | "bug" | "security" | "quality";
+export type FindingCategory = "architecture" | "bug" | "security" | "quality";
 
-type AIFinding = {
+export type AIFinding = {
   id: string;
   severity: FindingSeverity;
   category: FindingCategory;
@@ -30,7 +31,7 @@ type AIFinding = {
   recommendation: string;
 };
 
-type AIAnalysisData = {
+export type AIAnalysisData = {
   score: number;
   summary: string;
   findings: AIFinding[];
@@ -40,6 +41,7 @@ type Filter = "all" | FindingCategory;
 
 type Props = {
   analysis: AIAnalysisData | null;
+  onSelectFileLocation?: (file: string, line: number) => void;
 };
 
 const severityConfig: Record<
@@ -97,7 +99,14 @@ const categoryConfig: Record<
   },
 };
 
-export default function AIAnalysis({ analysis }: Props) {
+export function getHealthStatus(score: number): { label: string; color: string } {
+  if (score >= 9) return { label: "Healthy", color: "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" };
+  if (score >= 7) return { label: "Good", color: "text-[#ffeca0] border-[#ffeca0]/20 bg-[#ffeca0]/10" };
+  if (score >= 5) return { label: "Needs attention", color: "text-orange-400 border-orange-400/20 bg-orange-400/10" };
+  return { label: "Critical issues", color: "text-red-400 border-red-400/20 bg-red-400/10" };
+}
+
+export default function AIAnalysis({ analysis, onSelectFileLocation }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const [expandedFinding, setExpandedFinding] = useState<string | null>(null);
 
@@ -113,7 +122,9 @@ export default function AIAnalysis({ analysis }: Props) {
 
     return analysis.findings.reduce(
       (acc, finding) => {
-        acc[finding.severity]++;
+        if (acc[finding.severity] !== undefined) {
+          acc[finding.severity]++;
+        }
         return acc;
       },
       {
@@ -121,7 +132,7 @@ export default function AIAnalysis({ analysis }: Props) {
         major: 0,
         minor: 0,
         info: 0,
-      },
+      }
     );
   }, [analysis]);
 
@@ -139,121 +150,107 @@ export default function AIAnalysis({ analysis }: Props) {
     return (
       <aside className="flex h-full flex-col border-l border-white/10 bg-[#191818]">
         <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#ffeca0]/5">
-            <Sparkles className="h-5 w-5 text-[#ffeca0]/50" />
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#ffeca0]/5 border border-[#ffeca0]/10">
+            <Sparkles className="h-5 w-5 text-[#ffeca0]/60" />
           </div>
 
-          <p className="text-sm font-medium text-white/60">AI analysis</p>
+          <p className="text-sm font-semibold text-white/80">AI Code Analysis</p>
 
-          <p className="mt-2 text-xs leading-5 text-white/25">
-            Select a repository to let FixBS analyze its architecture, bugs,
-            security, and code quality.
+          <p className="mt-2 text-xs leading-5 text-white/30 max-w-[240px]">
+            Select a repository to initiate Gemini AI AST reasoning across architecture, bugs, security, and quality.
           </p>
         </div>
       </aside>
     );
   }
 
+  const healthStatus = getHealthStatus(analysis.score);
+
   return (
     <aside className="flex h-full flex-col border-l border-white/10 bg-[#191818]">
-      {/* Header */}
-      <div className="shrink-0 border-b border-white/10 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-[#ffeca0]" />
-              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
-                AI Analysis
-              </p>
-            </div>
-
-            <p className="mt-1.5 text-xs leading-5 text-white/40">
-              Automated code intelligence
-            </p>
+      {/* Level 2: Repository Health Overview */}
+      <div className="shrink-0 border-b border-white/10 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#ffeca0]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40">
+              Repository Health
+            </span>
           </div>
 
-          <ScoreBadge score={analysis.score} />
+          <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${healthStatus.color}`}>
+            {healthStatus.label}
+          </span>
         </div>
 
-        {/* Summary */}
-        <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.025] p-3">
-          <p className="text-[11px] leading-5 text-white/55">
+        {/* Score & Summary Box */}
+        <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.025] p-3">
+          <div>
+            <p className="text-[9px] uppercase tracking-wider text-white/30 font-medium">
+              Overall AI Score
+            </p>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-2xl font-bold text-[#ffeca0]">
+                {analysis.score.toFixed(1)}
+              </span>
+              <span className="text-xs text-white/30 font-medium">/ 10</span>
+            </div>
+          </div>
+
+          <div className="text-right border-l border-white/5 pl-4">
+            <p className="text-[9px] uppercase tracking-wider text-white/30 font-medium">
+              Based on
+            </p>
+            <p className="text-xs font-semibold text-white/70 mt-0.5">
+              {analysis.findings.length} findings
+            </p>
+          </div>
+        </div>
+
+        {/* Executive Summary */}
+        <div className="rounded-xl border border-white/5 bg-white/[0.015] p-3">
+          <p className="text-[11px] leading-relaxed text-white/60">
             {analysis.summary}
           </p>
         </div>
 
-        {/* Finding counts */}
-        <div className="mt-3 grid grid-cols-4 gap-1.5">
-          <Count
-            value={counts.critical}
-            label="Critical"
-            className="text-red-300"
-          />
-
-          <Count
-            value={counts.major}
-            label="Major"
-            className="text-orange-300"
-          />
-
-          <Count
-            value={counts.minor}
-            label="Minor"
-            className="text-yellow-200"
-          />
-
-          <Count value={counts.info} label="Info" className="text-blue-300" />
+        {/* Severity Count Grid */}
+        <div className="grid grid-cols-4 gap-1.5 pt-1">
+          <Count value={counts.critical} label="Critical" className="text-red-300 bg-red-500/10" />
+          <Count value={counts.major} label="Major" className="text-orange-300 bg-orange-500/10" />
+          <Count value={counts.minor} label="Minor" className="text-yellow-200 bg-yellow-500/10" />
+          <Count value={counts.info} label="Info" className="text-blue-300 bg-blue-500/10" />
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="shrink-0 overflow-x-auto border-b border-white/10 px-3 py-2">
+      {/* Category Filter Bar */}
+      <div className="shrink-0 overflow-x-auto border-b border-white/10 px-3 py-2 scrollbar-none">
         <div className="flex min-w-max gap-1">
-          <FilterButton
-            active={filter === "all"}
-            onClick={() => setFilter("all")}
-          >
-            All
+          <FilterButton active={filter === "all"} onClick={() => setFilter("all")}>
+            All ({analysis.findings.length})
           </FilterButton>
-
-          <FilterButton
-            active={filter === "bug"}
-            onClick={() => setFilter("bug")}
-          >
+          <FilterButton active={filter === "bug"} onClick={() => setFilter("bug")}>
             Bugs
           </FilterButton>
-
-          <FilterButton
-            active={filter === "security"}
-            onClick={() => setFilter("security")}
-          >
+          <FilterButton active={filter === "security"} onClick={() => setFilter("security")}>
             Security
           </FilterButton>
-
-          <FilterButton
-            active={filter === "architecture"}
-            onClick={() => setFilter("architecture")}
-          >
+          <FilterButton active={filter === "architecture"} onClick={() => setFilter("architecture")}>
             Architecture
           </FilterButton>
-
-          <FilterButton
-            active={filter === "quality"}
-            onClick={() => setFilter("quality")}
-          >
+          <FilterButton active={filter === "quality"} onClick={() => setFilter("quality")}>
             Quality
           </FilterButton>
         </div>
       </div>
 
-      {/* Findings */}
+      {/* Findings Diagnostic Cards */}
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {filteredFindings.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-            <CheckCircle2 className="mb-3 h-6 w-6 text-[#ffeca0]/40" />
-            <p className="text-xs text-white/40">
-              No findings in this category.
-            </p>
+            <CheckCircle2 className="mb-3 h-6 w-6 text-emerald-400/60" />
+            <p className="text-xs text-white/50 font-medium">No findings in this category.</p>
+            <p className="text-[10px] text-white/30 mt-1">FixBS detected no architectural issues for this filter.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -264,9 +261,10 @@ export default function AIAnalysis({ analysis }: Props) {
                 expanded={expandedFinding === finding.id}
                 onToggle={() =>
                   setExpandedFinding((current) =>
-                    current === finding.id ? null : finding.id,
+                    current === finding.id ? null : finding.id
                   )
                 }
+                onSelectFileLocation={onSelectFileLocation}
               />
             ))}
           </div>
@@ -280,13 +278,15 @@ function FindingCard({
   finding,
   expanded,
   onToggle,
+  onSelectFileLocation,
 }: {
   finding: AIFinding;
   expanded: boolean;
   onToggle: () => void;
+  onSelectFileLocation?: (file: string, line: number) => void;
 }) {
-  const severity = severityConfig[finding.severity];
-  const category = categoryConfig[finding.category];
+  const severity = severityConfig[finding.severity] || severityConfig.info;
+  const category = categoryConfig[finding.category] || categoryConfig.quality;
 
   const SeverityIcon = severity.icon;
   const CategoryIcon = category.icon;
@@ -295,13 +295,13 @@ function FindingCard({
     <div
       className={`overflow-hidden rounded-xl border transition ${
         expanded
-          ? "border-white/10 bg-white/[0.035]"
+          ? "border-white/15 bg-white/[0.04] shadow-lg"
           : "border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.03]"
       }`}
     >
-      <button onClick={onToggle} className="w-full p-3 text-left">
+      <div className="w-full p-3 text-left cursor-pointer" onClick={onToggle}>
         <div className="flex items-start gap-2.5">
-          <div className="mt-0.5 shrink-0 text-white/25">
+          <div className="mt-0.5 shrink-0 text-white/30">
             {expanded ? (
               <ChevronDown className="h-3.5 w-3.5" />
             ) : (
@@ -312,85 +312,73 @@ function FindingCard({
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex flex-wrap items-center gap-1.5">
               <span
-                className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide ${severity.className}`}
+                className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${severity.className}`}
               >
                 <SeverityIcon className="h-2.5 w-2.5" />
                 {severity.label}
               </span>
 
-              <span className="inline-flex items-center gap-1 rounded-md bg-white/5 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white/35">
+              <span className="inline-flex items-center gap-1 rounded-md bg-white/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white/40">
                 <CategoryIcon className="h-2.5 w-2.5" />
                 {category.label}
               </span>
             </div>
 
-            <p className="text-xs font-medium leading-5 text-white/75">
+            <p className="text-xs font-semibold leading-relaxed text-white/85">
               {finding.title}
             </p>
 
-            <div className="mt-2 flex items-center gap-1.5 text-[10px] text-white/25">
-              <span className="max-w-[180px] truncate">{finding.file}</span>
-
-              <span>·</span>
-
-              <span>line {finding.line}</span>
+            <div className="mt-2 flex items-center justify-between text-[10px] text-white/40 font-mono">
+              <span className="truncate max-w-[180px]">{finding.file}</span>
+              <span className="text-white/30">L{finding.line}</span>
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {expanded && (
-        <div className="border-t border-white/5 px-3 pb-3 pt-3">
-          <div className="ml-6 space-y-3">
+        <div className="border-t border-white/5 bg-[#151414]/50 px-3.5 pb-3.5 pt-3">
+          <div className="space-y-3 text-left">
             <div>
-              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/25">
-                Explanation
+              <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white/30">
+                WHY THIS MATTERS
               </p>
-
-              <p className="text-[11px] leading-5 text-white/50">
+              <p className="text-[11px] leading-relaxed text-white/60">
                 {finding.explanation}
               </p>
             </div>
 
-            <div className="rounded-lg border border-[#ffeca0]/10 bg-[#ffeca0]/[0.03] p-2.5">
-              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#ffeca0]/50">
-                Recommendation
+            <div className="rounded-lg border border-[#ffeca0]/15 bg-[#ffeca0]/[0.03] p-2.5">
+              <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#ffeca0]/60">
+                RECOMMENDATION
               </p>
-
-              <p className="text-[11px] leading-5 text-white/55">
+              <p className="text-[11px] leading-relaxed text-white/70">
                 {finding.recommendation}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-[10px] text-white/25">
-              <Code2 className="h-3 w-3" />
-              <span>
-                {finding.file}:{finding.line}
-              </span>
-            </div>
+            {/* Evidence File Action Button */}
+            {onSelectFileLocation && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectFileLocation(finding.file, finding.line);
+                }}
+                className="w-full flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-white/80 transition hover:bg-[#ffeca0] hover:text-[#1c1b1b]"
+              >
+                <div className="flex items-center gap-2 font-mono text-[11px]">
+                  <Code2 className="h-3.5 w-3.5" />
+                  <span className="truncate">{finding.file}:{finding.line}</span>
+                </div>
+                <div className="flex items-center gap-1 text-[10px]">
+                  <span>View source</span>
+                  <ArrowUpRight className="h-3 w-3" />
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function ScoreBadge({ score }: { score: number }) {
-  const roundedScore = score.toFixed(1);
-
-  return (
-    <div className="flex items-center gap-2 rounded-lg border border-[#ffeca0]/10 bg-[#ffeca0]/5 px-2.5 py-1.5">
-      <div className="h-1.5 w-1.5 rounded-full bg-[#ffeca0]" />
-
-      <div>
-        <p className="text-[9px] uppercase tracking-wider text-white/25">
-          Score
-        </p>
-
-        <p className="text-xs font-semibold text-[#ffeca0]">
-          {roundedScore}/10
-        </p>
-      </div>
     </div>
   );
 }
@@ -405,10 +393,9 @@ function Count({
   className: string;
 }) {
   return (
-    <div className="rounded-lg bg-white/[0.025] px-2 py-2">
-      <p className={`text-sm font-semibold ${className}`}>{value}</p>
-
-      <p className="mt-0.5 text-[8px] uppercase tracking-wide text-white/20">
+    <div className={`rounded-lg p-2 text-center border border-white/5 ${className}`}>
+      <p className="text-xs font-bold text-white">{value}</p>
+      <p className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-white/40">
         {label}
       </p>
     </div>
@@ -427,10 +414,10 @@ function FilterButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-md px-2.5 py-1.5 text-[10px] transition ${
+      className={`rounded-lg px-2.5 py-1.5 text-[10px] font-medium transition ${
         active
-          ? "bg-[#ffeca0]/10 text-[#ffeca0]"
-          : "text-white/30 hover:bg-white/5 hover:text-white/60"
+          ? "bg-[#ffeca0] text-[#1c1b1b] font-semibold shadow"
+          : "text-white/40 hover:bg-white/5 hover:text-white/80"
       }`}
     >
       {children}

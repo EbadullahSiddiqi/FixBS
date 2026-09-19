@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import "./index.css";
 
@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FixBS | Upload your code and get it fixed",
-  description: "Upload your code and get it fixed",
+  title: "FixBS | Code Intelligence & Repository Analysis",
+  description:
+    "AST parsing, dependency graph analysis, and Gemini AI reasoning for JavaScript & TypeScript codebases.",
 };
 
 export default function RootLayout({
@@ -25,12 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SessionProvider>{children}</SessionProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className="dark">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#1c1b1b] text-white selection:bg-[#ffeca0]/20 selection:text-[#ffeca0]`}
+        >
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

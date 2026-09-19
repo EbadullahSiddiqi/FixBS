@@ -1,9 +1,7 @@
-import Home from "@/components/Home";
+export const dynamic = "force-dynamic";
 
-export default function page() {
-  return (
-    <div className="">
-      <Home />
-    </div>
-  );
+import LandingPage from "@/components/LandingPage";
+
+export default function Page() {
+  return <LandingPage />;
 }
